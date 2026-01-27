@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIH Customer Success Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shield-halved"></i>
+                <span>CIH CS Platform</span>
+            </div>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-item active" data-page="daily">
+                <i class="fas fa-bolt"></i><span>Daily Operations</span>
+            </li>
+            <li class="nav-item" data-page="weekly">
+                <i class="fas fa-chart-line"></i><span>Weekly Strategic</span>
+            </li>
+            <li class="nav-item" data-page="monthly">
+                <i class="fas fa-briefcase"></i><span>Monthly Executive</span>
+            </li>
+            <li class="nav-item" data-page="c360">
+                <i class="fas fa-user-circle"></i><span>Customer 360</span>
+            </li>
+            <li class="nav-item" data-page="health">
+                <i class="fas fa-heartbeat"></i><span>Health Scores</span>
+            </li>
+            <li class="nav-item" data-page="pipeline">
+                <i class="fas fa-funnel-dollar"></i><span>Pipeline & Renewals</span>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar">CL</div>
+                <div>
+                    <div class="user-name">CSM User</div>
+                    <div class="user-role">Customer Success</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search customers, CTAs, metrics..." id="globalSearch">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn" title="Notifications"><i class="fas fa-bell"></i><span class="badge">5</span></button>
+                <button class="icon-btn" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                <span class="last-updated">Updated: <span id="lastUpdated"></span></span>
+            </div>
+        </header>
+
+        <!-- Page: Daily Operations Dashboard -->
+        <div class="page active" id="page-daily">
+            <div class="page-header">
+                <h1>Daily Operations Dashboard</h1>
+                <p class="subtitle">What do I need to do today?</p>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiRedAlerts">7</div>
+                        <div class="kpi-label">Red Alerts</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon yellow"><i class="fas fa-flag"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiYellowFlags">12</div>
+                        <div class="kpi-label">Yellow Flags</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-thumbs-up"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiGreenLights">18</div>
+                        <div class="kpi-label">Green Lights</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiTotalCustomers">132</div>
+                        <div class="kpi-label">Total Customers</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiTotalARR">$14.55M</div>
+                        <div class="kpi-label">Total ARR</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon teal"><i class="fas fa-shield-alt"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="kpiAvgHealth">82</div>
+                        <div class="kpi-label">Avg Health Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Red Alerts Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2><span class="dot red"></span> Urgent Attention Required</h2>
+                    <span class="badge-count red">7 alerts</span>
+                </div>
+                <div class="alert-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Alert Type</th>
+                                <th>Details</th>
+                                <th>Health</th>
+                                <th>ARR</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="redAlerts"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Yellow Flags Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2><span class="dot yellow"></span> Proactive Outreach Opportunities</h2>
+                    <span class="badge-count yellow">12 flags</span>
+                </div>
+                <div class="alert-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Flag Type</th>
+                                <th>Details</th>
+                                <th>Health</th>
+                                <th>ARR</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="yellowFlags"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Green Lights Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2><span class="dot green"></span> Success Stories & Expansion Signals</h2>
+                    <span class="badge-count green">18 signals</span>
+                </div>
+                <div class="alert-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Signal</th>
+                                <th>Details</th>
+                                <th>Health</th>
+                                <th>ARR</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="greenLights"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Health Snapshot + Today's Priorities -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Health Score Snapshot</h3></div>
+                    <div class="card-body">
+                        <canvas id="healthDonut" height="200"></canvas>
+                        <div class="health-legend" id="healthLegend"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>Today's Priorities</h3></div>
+                    <div class="card-body">
+                        <div class="priority-section">
+                            <h4><i class="fas fa-phone"></i> Top 3 Customers to Call</h4>
+                            <div id="callPriorities"></div>
+                        </div>
+                        <div class="priority-section">
+                            <h4><i class="fas fa-envelope"></i> Top 3 Customers to Email</h4>
+                            <div id="emailPriorities"></div>
+                        </div>
+                        <div class="priority-section">
+                            <h4><i class="fas fa-calendar"></i> QBR Scheduling</h4>
+                            <div id="qbrSchedule"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yesterday's Activity Summary -->
+            <div class="section">
+                <div class="section-header"><h2>Yesterday's Activity Summary</h2></div>
+                <div class="kpi-row small">
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">24,580</div>
+                        <div class="kpi-label">Total API Calls</div>
+                    </div>
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">1,247</div>
+                        <div class="kpi-label">Total Logins</div>
+                    </div>
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">3,891</div>
+                        <div class="kpi-label">Findings Checked</div>
+                    </div>
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">94%</div>
+                        <div class="kpi-label">Ticket Resolution</div>
+                    </div>
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">2</div>
+                        <div class="kpi-label">New Onboardings</div>
+                    </div>
+                    <div class="kpi-card mini">
+                        <div class="kpi-value">$45K</div>
+                        <div class="kpi-label">ARR Added</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Weekly Strategic Dashboard -->
+        <div class="page" id="page-weekly">
+            <div class="page-header">
+                <h1>Weekly Strategic Dashboard</h1>
+                <p class="subtitle">Trends, cohort analysis & strategic planning</p>
+            </div>
+
+            <!-- Weekly Health Trends -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Health Score Trends (Last 8 Weeks)</h3></div>
+                    <div class="card-body"><canvas id="weeklyHealthTrend" height="250"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>Churn Risk Forecast</h3></div>
+                    <div class="card-body"><canvas id="churnForecast" height="250"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Health Score Movers -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3><i class="fas fa-arrow-up text-green"></i> Improved This Week</h3></div>
+                    <div class="card-body" id="weeklyImproved"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3><i class="fas fa-arrow-down text-red"></i> Declined This Week</h3></div>
+                    <div class="card-body" id="weeklyDeclined"></div>
+                </div>
+            </div>
+
+            <!-- Feature Adoption Funnel -->
+            <div class="card">
+                <div class="card-header"><h3>Feature Adoption Funnel</h3></div>
+                <div class="card-body">
+                    <div class="funnel-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Access</th>
+                                    <th>Tried Once</th>
+                                    <th>Regular Use</th>
+                                    <th>Power Use</th>
+                                </tr>
+                            </thead>
+                            <tbody id="featureFunnel"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cohort Analysis + Revenue Intelligence -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Cohort Analysis by Company Size</h3></div>
+                    <div class="card-body"><canvas id="cohortChart" height="250"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>Weekly Revenue Intelligence</h3></div>
+                    <div class="card-body">
+                        <div class="revenue-metrics">
+                            <div class="rev-item"><span class="rev-label">Expansion Pipeline</span><span class="rev-value">$1.2M</span></div>
+                            <div class="rev-item"><span class="rev-label">30-Day Renewals</span><span class="rev-value green">$2.1M</span></div>
+                            <div class="rev-item"><span class="rev-label">60-Day Renewals</span><span class="rev-value yellow">$1.8M</span></div>
+                            <div class="rev-item"><span class="rev-label">90-Day Renewals</span><span class="rev-value">$3.4M</span></div>
+                            <div class="rev-item"><span class="rev-label">ARR Growth WoW</span><span class="rev-value green">+$85K</span></div>
+                            <div class="rev-item"><span class="rev-label">Avg Expansion Deal</span><span class="rev-value">$42K</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Monthly Executive Dashboard -->
+        <div class="page" id="page-monthly">
+            <div class="page-header">
+                <h1>Monthly Executive Dashboard</h1>
+                <p class="subtitle">Portfolio performance & strategic insights</p>
+            </div>
+
+            <!-- Portfolio KPIs -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">$14.55M</div>
+                        <div class="kpi-label">Total ARR</div>
+                        <div class="kpi-delta green">+8.2% YoY</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-redo"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">112%</div>
+                        <div class="kpi-label">Net Revenue Retention</div>
+                        <div class="kpi-delta green">Healthy</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-check-circle"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">95%</div>
+                        <div class="kpi-label">Gross Retention</div>
+                        <div class="kpi-delta green">+2%</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon teal"><i class="fas fa-heartbeat"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">82</div>
+                        <div class="kpi-label">Avg Health Score</div>
+                        <div class="kpi-delta green">+3 pts</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon yellow"><i class="fas fa-users"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">132</div>
+                        <div class="kpi-label">Total Customers</div>
+                        <div class="kpi-delta green">+5 this month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Monthly ARR Trend</h3></div>
+                    <div class="card-body"><canvas id="arrTrend" height="250"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>Renewal & Churn Analysis</h3></div>
+                    <div class="card-body"><canvas id="renewalChurn" height="250"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Product Adoption + CS Performance -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Product Adoption Metrics</h3></div>
+                    <div class="card-body"><canvas id="adoptionRadar" height="280"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>CS Team Performance</h3></div>
+                    <div class="card-body">
+                        <div class="perf-metrics">
+                            <div class="perf-item">
+                                <span class="perf-label">QBRs Conducted</span>
+                                <div class="perf-bar"><div class="perf-fill" style="width:78%">34/44</div></div>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">Avg Response Time</span>
+                                <div class="perf-bar"><div class="perf-fill green" style="width:88%">2.4 hrs</div></div>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">Ticket Resolution</span>
+                                <div class="perf-bar"><div class="perf-fill green" style="width:94%">94%</div></div>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">CSAT Score</span>
+                                <div class="perf-bar"><div class="perf-fill" style="width:91%">4.55/5</div></div>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">Proactive vs Reactive</span>
+                                <div class="perf-bar"><div class="perf-fill teal" style="width:62%">62% proactive</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategic Insights -->
+            <div class="card">
+                <div class="card-header"><h3>Strategic Insights</h3></div>
+                <div class="card-body">
+                    <div class="insights-grid" id="strategicInsights"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Customer 360 -->
+        <div class="page" id="page-c360">
+            <div class="page-header">
+                <h1>Customer 360</h1>
+                <div class="c360-search">
+                    <select id="c360CustomerSelect">
+                        <option value="">Select a customer...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="c360Content" class="hidden">
+                <!-- C360 Header -->
+                <div class="c360-header" id="c360Header"></div>
+
+                <!-- C360 Tabs -->
+                <div class="c360-tabs">
+                    <button class="c360-tab active" data-tab="summary">Summary</button>
+                    <button class="c360-tab" data-tab="attributes">Attributes</button>
+                    <button class="c360-tab" data-tab="scorecards">Scorecards</button>
+                    <button class="c360-tab" data-tab="timeline">Timeline</button>
+                    <button class="c360-tab" data-tab="ctas">CTAs</button>
+                    <button class="c360-tab" data-tab="usage">Usage</button>
+                    <button class="c360-tab" data-tab="surveys">Surveys</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="c360-tab-content active" id="tab-summary"></div>
+                <div class="c360-tab-content" id="tab-attributes"></div>
+                <div class="c360-tab-content" id="tab-scorecards"></div>
+                <div class="c360-tab-content" id="tab-timeline"></div>
+                <div class="c360-tab-content" id="tab-ctas"></div>
+                <div class="c360-tab-content" id="tab-usage"></div>
+                <div class="c360-tab-content" id="tab-surveys"></div>
+            </div>
+        </div>
+
+        <!-- Page: Health Scores -->
+        <div class="page" id="page-health">
+            <div class="page-header">
+                <h1>Health Score Overview</h1>
+                <p class="subtitle">Automated health scoring across all customers</p>
+            </div>
+
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-smile"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="healthGreenCount">78</div>
+                        <div class="kpi-label">Green (80-100)</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon yellow"><i class="fas fa-meh"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="healthYellowCount">36</div>
+                        <div class="kpi-label">Yellow (60-79)</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon red"><i class="fas fa-frown"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value" id="healthRedCount">18</div>
+                        <div class="kpi-label">Red (&lt;60)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>All Customer Health Scores</h3>
+                    <div class="filter-row">
+                        <select id="healthFilter">
+                            <option value="all">All</option>
+                            <option value="green">Green</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="red">Red</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="full-table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Health Score</th>
+                                <th>Adoption (30%)</th>
+                                <th>Engagement (25%)</th>
+                                <th>Outcomes (20%)</th>
+                                <th>Sentiment (15%)</th>
+                                <th>Relationship (10%)</th>
+                                <th>Trend</th>
+                                <th>Stage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="healthTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Pipeline & Renewals -->
+        <div class="page" id="page-pipeline">
+            <div class="page-header">
+                <h1>Expansion & Renewal Pipeline</h1>
+                <p class="subtitle">Revenue retention and growth opportunities</p>
+            </div>
+
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="fas fa-expand-arrows-alt"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">$1.2M</div>
+                        <div class="kpi-label">Expansion Pipeline</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-redo"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">$7.3M</div>
+                        <div class="kpi-label">90-Day Renewals</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon yellow"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">$1.4M</div>
+                        <div class="kpi-label">Renewals at Risk</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-percentage"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-value">89%</div>
+                        <div class="kpi-label">Renewal Win Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><h3>Expansion Opportunities</h3></div>
+                    <div class="card-body">
+                        <table class="full-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Current ARR</th>
+                                    <th>Type</th>
+                                    <th>Expected Value</th>
+                                    <th>Readiness</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expansionTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3>90-Day Renewal Pipeline</h3></div>
+                    <div class="card-body">
+                        <table class="full-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>ARR</th>
+                                    <th>Renewal Date</th>
+                                    <th>Health</th>
+                                    <th>Likelihood</th>
+                                </tr>
+                            </thead>
+                            <tbody id="renewalTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Renewal Pipeline Forecast</h3></div>
+                <div class="card-body"><canvas id="renewalForecast" height="280"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
