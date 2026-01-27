@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Score Configuration - CIH CS Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 100vh;
+            background: #1e3a5f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e94560, #0f3460);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            padding: 0 8px;
+        }
+
+        .nav-item {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            margin-left: 60px;
+            padding: 24px;
+        }
+
+        /* Header */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #1a73e8;
+        }
+
+        /* Content Grid */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Weight Sliders */
+        .weight-category {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .weight-category:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .weight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .weight-label {
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-label .category-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .weight-label .category-icon.usage { background: #dbeafe; }
+        .weight-label .category-icon.service { background: #d1fae5; }
+        .weight-label .category-icon.engagement { background: #fef3c7; }
+        .weight-label .category-icon.financial { background: #ede9fe; }
+        .weight-label .category-icon.sentiment { background: #fee2e2; }
+
+        .weight-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+
+        .weight-description {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .weight-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e7eb;
+            outline: none;
+        }
+
+        .weight-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a73e8;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+        }
+
+        .weight-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1a73e8;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+        }
+
+        .weight-metrics {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .metric-tag {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            color: #6b7280;
+        }
+
+        /* Total Weight */
+        .total-weight {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-weight-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .total-weight-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .total-weight-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-left: 12px;
+        }
+
+        .total-weight-status.valid {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .total-weight-status.invalid {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Preview Card */
+        .preview-card {
+            position: sticky;
+            top: 24px;
+        }
+
+        .score-preview {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .preview-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .preview-score {
+            font-size: 64px;
+            font-weight: 700;
+            color: #22c55e;
+            line-height: 1;
+        }
+
+        .preview-score.yellow { color: #f59e0b; }
+        .preview-score.red { color: #ef4444; }
+
+        .preview-status {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .preview-status.green { color: #22c55e; }
+        .preview-status.yellow { color: #f59e0b; }
+        .preview-status.red { color: #ef4444; }
+
+        /* Score Breakdown */
+        .score-breakdown {
+            margin-top: 20px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .breakdown-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .breakdown-fill.usage { background: #3b82f6; }
+        .breakdown-fill.service { background: #22c55e; }
+        .breakdown-fill.engagement { background: #f59e0b; }
+        .breakdown-fill.financial { background: #8b5cf6; }
+        .breakdown-fill.sentiment { background: #ef4444; }
+
+        .breakdown-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* Thresholds Card */
+        .thresholds-card {
+            margin-top: 24px;
+        }
+
+        .threshold-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .threshold-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .threshold-color.green { background: #22c55e; }
+        .threshold-color.yellow { background: #f59e0b; }
+        .threshold-color.red { background: #ef4444; }
+
+        .threshold-info {
+            flex: 1;
+        }
+
+        .threshold-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .threshold-range {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .threshold-input {
+            width: 60px;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Red Flags Section */
+        .red-flags-section {
+            margin-top: 24px;
+        }
+
+        .red-flag-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #ef4444;
+        }
+
+        .red-flag-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .red-flag-icon {
+            font-size: 18px;
+        }
+
+        .red-flag-text {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .red-flag-penalty {
+            font-weight: 600;
+            color: #ef4444;
+            font-size: 14px;
+        }
+
+        /* Playbook Triggers Section */
+        .playbook-section {
+            margin-top: 24px;
+        }
+
+        .playbook-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .playbook-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .playbook-icon.health { background: #fee2e2; }
+        .playbook-icon.engagement { background: #fef3c7; }
+        .playbook-icon.renewal { background: #dbeafe; }
+        .playbook-icon.onboarding { background: #d1fae5; }
+        .playbook-icon.expansion { background: #ede9fe; }
+        .playbook-icon.escalation { background: #fce7f3; }
+
+        .playbook-content {
+            flex: 1;
+        }
+
+        .playbook-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e3a5f;
+            margin-bottom: 4px;
+        }
+
+        .playbook-trigger {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .playbook-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .playbook-action-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            background: white;
+            border-radius: 4px;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .playbook-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: #22c55e;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* Executive Summary Section */
+        .summary-section {
+            margin-top: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-stat {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3a5f;
+            line-height: 1;
+        }
+
+        .summary-stat-value.green { color: #22c55e; }
+        .summary-stat-value.yellow { color: #f59e0b; }
+        .summary-stat-value.red { color: #ef4444; }
+
+        .summary-stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .summary-chart {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .summary-chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .distribution-bar {
+            display: flex;
+            height: 32px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .distribution-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            transition: flex 0.3s;
+        }
+
+        .distribution-segment.green { background: #22c55e; }
+        .distribution-segment.yellow { background: #f59e0b; }
+        .distribution-segment.red { background: #ef4444; }
+
+        .distribution-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .distribution-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.green { background: #22c55e; }
+        .legend-dot.yellow { background: #f59e0b; }
+        .legend-dot.red { background: #ef4444; }
+
+        .summary-insights {
+            background: #fffbeb;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .summary-insights-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .insight-item {
+            font-size: 13px;
+            color: #78350f;
+            margin-bottom: 8px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .insight-item::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            color: #f59e0b;
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-card {
+                position: static;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">CIH</div>
+        <div class="sidebar-nav">
+            <a href="daily-dashboard-layout.html" class="nav-item" title="Dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+            </a>
+            <a href="daily-dashboard-layout.html" class="nav-item" title="Customers">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </a>
+            <div class="nav-item active" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <a href="daily-dashboard-layout.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+
+        <div class="page-header">
+            <div>
+                <h1>Health Score Configuration</h1>
+                <p>Configure how customer health scores are calculated for your MSSP</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="resetToDefaults()">Reset to Defaults</button>
+                <button class="btn btn-primary" onclick="saveConfiguration()">Save Configuration</button>
+            </div>
+        </div>
+
+        <div class="config-grid">
+            <!-- Weight Configuration -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <span>Category Weights</span>
+                    </div>
+
+                    <!-- Usage & Adoption -->
+                    <div class="weight-category">
+                        <div class="weight-header">
+                            <div class="weight-label">
+                                <div class="category-icon usage">📊</div>
+                                <span>Product Usage & Adoption</span>
+                            </div>
+                            <div class="weight-value" id="usageValue">25%</div>
+                        </div>
+                        <div class="weight-description">Measures how actively customers use your MSSP services and platform</div>
+                        <input type="range" class="weight-slider" id="usageSlider" min="0" max="50" value="25" oninput="updateWeight('usage')">
+                        <div class="weight-metrics">
+                            <span class="metric-tag">Portal login frequency</span>
+                            <span class="metric-tag">Feature utilization %</span>
+                            <span class="metric-tag">Alert response rate</span>
+                            <span class="metric-tag">Report consumption</span>
+                        </div>
+                    </div>
+
+                    <!-- Service Delivery -->
+                    <div class="weight-category">
+                        <div class="weight-header">
+                            <div class="weight-label">
+                                <div class="category-icon service">🛡️</div>
+                                <span>Service Delivery</span>
+                            </div>
+                            <div class="weight-value" id="serviceValue">25%</div>
+                        </div>
+                        <div class="weight-description">Tracks SLA compliance and quality of security services delivered</div>
+                        <input type="range" class="weight-slider" id="serviceSlider" min="0" max="50" value="25" oninput="updateWeight('service')">
+                        <div class="weight-metrics">
+                            <span class="metric-tag">SLA compliance rate</span>
+                            <span class="metric-tag">MTTD / MTTR</span>
+                            <span class="metric-tag">Open ticket count</span>
+                            <span class="metric-tag">Escalation frequency</span>
+                        </div>
+                    </div>
+
+                    <!-- Engagement -->
+                    <div class="weight-category">
+                        <div class="weight-header">
+                            <div class="weight-label">
+                                <div class="category-icon engagement">🤝</div>
+                                <span>Engagement</span>
+                            </div>
+                            <div class="weight-value" id="engagementValue">20%</div>
+                        </div>
+                        <div class="weight-description">Measures customer responsiveness and participation in success activities</div>
+                        <input type="range" class="weight-slider" id="engagementSlider" min="0" max="50" value="20" oninput="updateWeight('engagement')">
+                        <div class="weight-metrics">
+                            <span class="metric-tag">QBR attendance</span>
+                            <span class="metric-tag">Response time to CSM</span>
+                            <span class="metric-tag">Training completion</span>
+                            <span class="metric-tag">Days since last contact</span>
+                        </div>
+                    </div>
+
+                    <!-- Financial Health -->
+                    <div class="weight-category">
+                        <div class="weight-header">
+                            <div class="weight-label">
+                                <div class="category-icon financial">💰</div>
+                                <span>Financial Health</span>
+                            </div>
+                            <div class="weight-value" id="financialValue">15%</div>
+                        </div>
+                        <div class="weight-description">Tracks payment patterns and contract growth indicators</div>
+                        <input type="range" class="weight-slider" id="financialSlider" min="0" max="50" value="15" oninput="updateWeight('financial')">
+                        <div class="weight-metrics">
+                            <span class="metric-tag">Payment timeliness</span>
+                            <span class="metric-tag">Contract growth trend</span>
+                            <span class="metric-tag">Upsell acceptance</span>
+                        </div>
+                    </div>
+
+                    <!-- Relationship & Sentiment -->
+                    <div class="weight-category">
+                        <div class="weight-header">
+                            <div class="weight-label">
+                                <div class="category-icon sentiment">❤️</div>
+                                <span>Relationship & Sentiment</span>
+                            </div>
+                            <div class="weight-value" id="sentimentValue">15%</div>
+                        </div>
+                        <div class="weight-description">Captures customer satisfaction and relationship strength</div>
+                        <input type="range" class="weight-slider" id="sentimentSlider" min="0" max="50" value="15" oninput="updateWeight('sentiment')">
+                        <div class="weight-metrics">
+                            <span class="metric-tag">NPS score</span>
+                            <span class="metric-tag">CSAT ratings</span>
+                            <span class="metric-tag">Sponsor stability</span>
+                            <span class="metric-tag">Support sentiment</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Weight -->
+                    <div class="total-weight">
+                        <div>
+                            <div class="total-weight-label">Total Weight</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div class="total-weight-value" id="totalWeight">100%</div>
+                            <div class="total-weight-status valid" id="totalStatus">Valid</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Red Flags Section -->
+                <div class="card red-flags-section">
+                    <div class="card-title">
+                        <span>🚨 Automatic Red Flags</span>
+                    </div>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 16px;">
+                        These triggers automatically reduce health scores when detected
+                    </p>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">🔐</span>
+                            <span class="red-flag-text">No portal login in 14+ days</span>
+                        </div>
+                        <span class="red-flag-penalty">-15 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">👤</span>
+                            <span class="red-flag-text">Executive sponsor departed</span>
+                        </div>
+                        <span class="red-flag-penalty">-20 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">⚠️</span>
+                            <span class="red-flag-text">SLA breach occurred</span>
+                        </div>
+                        <span class="red-flag-penalty">-10 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">📅</span>
+                            <span class="red-flag-text">Missed 2+ consecutive QBRs</span>
+                        </div>
+                        <span class="red-flag-penalty">-15 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">📈</span>
+                            <span class="red-flag-text">Support tickets increased 50%+ MoM</span>
+                        </div>
+                        <span class="red-flag-penalty">-10 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">💳</span>
+                            <span class="red-flag-text">Payment overdue 30+ days</span>
+                        </div>
+                        <span class="red-flag-penalty">-15 pts</span>
+                    </div>
+
+                    <div class="red-flag-item">
+                        <div class="red-flag-info">
+                            <span class="red-flag-icon">🏢</span>
+                            <span class="red-flag-text">Competitor mentioned in communications</span>
+                        </div>
+                        <span class="red-flag-penalty">-25 pts</span>
+                    </div>
+                </div>
+
+                <!-- Playbook Triggers Section -->
+                <div class="card playbook-section">
+                    <div class="card-title">
+                        <span>📋 Playbook Triggers</span>
+                    </div>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 16px;">
+                        Automated playbooks triggered based on health score changes and customer signals
+                    </p>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon health">🔴</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Health Score Recovery</div>
+                            <div class="playbook-trigger">Triggers when: Score drops below 60 or decreases by 15+ points in 7 days</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Create urgent CTA</span>
+                                <span class="playbook-action-tag">Alert CSM manager</span>
+                                <span class="playbook-action-tag">Schedule check-in call</span>
+                                <span class="playbook-action-tag">Send health report</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon engagement">🔕</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Re-engagement Campaign</div>
+                            <div class="playbook-trigger">Triggers when: No portal login for 14+ days or no response to CSM for 10+ days</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Send engagement email</span>
+                                <span class="playbook-action-tag">Exec sponsor outreach</span>
+                                <span class="playbook-action-tag">Share threat briefing</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon renewal">📅</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Renewal Risk Mitigation</div>
+                            <div class="playbook-trigger">Triggers when: Renewal in 90 days + Score below 70 or negative sentiment detected</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Generate ROI report</span>
+                                <span class="playbook-action-tag">Schedule exec review</span>
+                                <span class="playbook-action-tag">Prepare value deck</span>
+                                <span class="playbook-action-tag">Alert sales team</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon onboarding">🚀</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Onboarding Acceleration</div>
+                            <div class="playbook-trigger">Triggers when: New customer + deployment &lt;50% after 30 days</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Assign implementation specialist</span>
+                                <span class="playbook-action-tag">Technical review call</span>
+                                <span class="playbook-action-tag">Send quick-start guide</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon expansion">📈</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Expansion Opportunity</div>
+                            <div class="playbook-trigger">Triggers when: Score ≥85 for 60+ days + high feature utilization + contract &gt;6 months</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Identify upsell options</span>
+                                <span class="playbook-action-tag">Request reference</span>
+                                <span class="playbook-action-tag">Suggest case study</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+
+                    <div class="playbook-item">
+                        <div class="playbook-icon escalation">🚨</div>
+                        <div class="playbook-content">
+                            <div class="playbook-title">Executive Escalation</div>
+                            <div class="playbook-trigger">Triggers when: Critical SLA breach or executive sponsor departure at Enterprise account</div>
+                            <div class="playbook-actions">
+                                <span class="playbook-action-tag">Alert VP of CS</span>
+                                <span class="playbook-action-tag">Create war room</span>
+                                <span class="playbook-action-tag">Exec-to-exec outreach</span>
+                                <span class="playbook-action-tag">Service credits review</span>
+                            </div>
+                        </div>
+                        <div class="playbook-toggle">
+                            <div class="toggle-switch active" onclick="togglePlaybook(this)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div>
+                <div class="card preview-card">
+                    <div class="card-title">
+                        <span>Score Preview</span>
+                    </div>
+
+                    <div class="score-preview">
+                        <div class="preview-label">Example Customer Score</div>
+                        <div class="preview-score" id="previewScore">78</div>
+                        <div class="preview-status green" id="previewStatus">Healthy</div>
+                    </div>
+
+                    <div class="score-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Usage</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill usage" style="width: 85%;"></div>
+                            </div>
+                            <span class="breakdown-value">21.3</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Service</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill service" style="width: 92%;"></div>
+                            </div>
+                            <span class="breakdown-value">23.0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Engagement</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill engagement" style="width: 70%;"></div>
+                            </div>
+                            <span class="breakdown-value">14.0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Financial</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill financial" style="width: 100%;"></div>
+                            </div>
+                            <span class="breakdown-value">15.0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Sentiment</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill sentiment" style="width: 65%;"></div>
+                            </div>
+                            <span class="breakdown-value">9.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thresholds Card -->
+                <div class="card thresholds-card">
+                    <div class="card-title">
+                        <span>Health Thresholds</span>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-color green"></div>
+                        <div class="threshold-info">
+                            <div class="threshold-name">Healthy</div>
+                            <div class="threshold-range">Score at or above threshold</div>
+                        </div>
+                        <input type="number" class="threshold-input" id="greenThreshold" value="80" min="0" max="100" onchange="updateThresholds()">
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-color yellow"></div>
+                        <div class="threshold-info">
+                            <div class="threshold-name">At-Risk</div>
+                            <div class="threshold-range">Score between thresholds</div>
+                        </div>
+                        <input type="number" class="threshold-input" id="yellowThreshold" value="60" min="0" max="100" onchange="updateThresholds()">
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-color red"></div>
+                        <div class="threshold-info">
+                            <div class="threshold-name">Critical</div>
+                            <div class="threshold-range">Score below threshold</div>
+                        </div>
+                        <span style="font-size: 14px; color: #6b7280; min-width: 60px; text-align: center;">&lt; <span id="redThreshold">60</span></span>
+                    </div>
+                </div>
+
+                <!-- Executive Summary Section -->
+                <div class="card summary-section">
+                    <div class="card-title">
+                        <span>📊 Executive Summary</span>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-stat">
+                            <div class="summary-stat-value">75</div>
+                            <div class="summary-stat-label">Portfolio Avg Score</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-stat-value green">+3.2</div>
+                            <div class="summary-stat-label">vs Last Month</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-stat-value red">8</div>
+                            <div class="summary-stat-label">At-Risk Accounts</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-stat-value">$2.4M</div>
+                            <div class="summary-stat-label">ARR at Risk</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-chart">
+                        <div class="summary-chart-title">Customer Health Distribution</div>
+                        <div class="distribution-bar">
+                            <div class="distribution-segment green" style="flex: 61;">61%</div>
+                            <div class="distribution-segment yellow" style="flex: 23;">23%</div>
+                            <div class="distribution-segment red" style="flex: 16;">16%</div>
+                        </div>
+                        <div class="distribution-legend">
+                            <div class="distribution-legend-item">
+                                <span class="legend-dot green"></span>
+                                <span>Healthy (46)</span>
+                            </div>
+                            <div class="distribution-legend-item">
+                                <span class="legend-dot yellow"></span>
+                                <span>At-Risk (17)</span>
+                            </div>
+                            <div class="distribution-legend-item">
+                                <span class="legend-dot red"></span>
+                                <span>Critical (12)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-insights">
+                        <div class="summary-insights-title">
+                            💡 Key Insights
+                        </div>
+                        <div class="insight-item">
+                            <strong>Engagement</strong> is the weakest category across portfolio (avg 62/100)
+                        </div>
+                        <div class="insight-item">
+                            <strong>3 Enterprise accounts</strong> have health scores below 60 - immediate attention required
+                        </div>
+                        <div class="insight-item">
+                            <strong>$1.2M ARR</strong> in renewals next 60 days with at-risk health scores
+                        </div>
+                        <div class="insight-item">
+                            <strong>SLA compliance</strong> improved 8% this month after process changes
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Weight values
+        let weights = {
+            usage: 25,
+            service: 25,
+            engagement: 20,
+            financial: 15,
+            sentiment: 15
+        };
+
+        // Update weight display
+        function updateWeight(category) {
+            const slider = document.getElementById(category + 'Slider');
+            const value = parseInt(slider.value);
+            weights[category] = value;
+            document.getElementById(category + 'Value').textContent = value + '%';
+            updateTotalWeight();
+            updatePreview();
+        }
+
+        // Update total weight
+        function updateTotalWeight() {
+            const total = Object.values(weights).reduce((a, b) => a + b, 0);
+            document.getElementById('totalWeight').textContent = total + '%';
+
+            const statusEl = document.getElementById('totalStatus');
+            if (total === 100) {
+                statusEl.textContent = 'Valid';
+                statusEl.className = 'total-weight-status valid';
+            } else {
+                statusEl.textContent = total < 100 ? 'Under 100%' : 'Over 100%';
+                statusEl.className = 'total-weight-status invalid';
+            }
+        }
+
+        // Update preview score
+        function updatePreview() {
+            // Simulated category scores (out of 100)
+            const scores = {
+                usage: 85,
+                service: 92,
+                engagement: 70,
+                financial: 100,
+                sentiment: 65
+            };
+
+            // Calculate weighted score
+            let totalScore = 0;
+            for (let cat in weights) {
+                const contribution = (scores[cat] * weights[cat]) / 100;
+                totalScore += contribution;
+
+                // Update breakdown
+                const barEl = document.querySelector(`.breakdown-fill.${cat}`);
+                const valueEl = barEl?.closest('.breakdown-item')?.querySelector('.breakdown-value');
+                if (barEl) barEl.style.width = scores[cat] + '%';
+                if (valueEl) valueEl.textContent = contribution.toFixed(1);
+            }
+
+            const scoreEl = document.getElementById('previewScore');
+            const statusEl = document.getElementById('previewStatus');
+            const greenThreshold = parseInt(document.getElementById('greenThreshold').value);
+            const yellowThreshold = parseInt(document.getElementById('yellowThreshold').value);
+
+            scoreEl.textContent = Math.round(totalScore);
+            scoreEl.className = 'preview-score';
+            statusEl.className = 'preview-status';
+
+            if (totalScore >= greenThreshold) {
+                scoreEl.classList.add('green');
+                statusEl.classList.add('green');
+                statusEl.textContent = 'Healthy';
+            } else if (totalScore >= yellowThreshold) {
+                scoreEl.classList.add('yellow');
+                statusEl.classList.add('yellow');
+                statusEl.textContent = 'At-Risk';
+            } else {
+                scoreEl.classList.add('red');
+                statusEl.classList.add('red');
+                statusEl.textContent = 'Critical';
+            }
+        }
+
+        // Update thresholds
+        function updateThresholds() {
+            const yellowThreshold = document.getElementById('yellowThreshold').value;
+            document.getElementById('redThreshold').textContent = yellowThreshold;
+            updatePreview();
+        }
+
+        // Reset to defaults
+        function resetToDefaults() {
+            weights = {
+                usage: 25,
+                service: 25,
+                engagement: 20,
+                financial: 15,
+                sentiment: 15
+            };
+
+            for (let cat in weights) {
+                document.getElementById(cat + 'Slider').value = weights[cat];
+                document.getElementById(cat + 'Value').textContent = weights[cat] + '%';
+            }
+
+            document.getElementById('greenThreshold').value = 80;
+            document.getElementById('yellowThreshold').value = 60;
+
+            updateTotalWeight();
+            updateThresholds();
+            updatePreview();
+
+            showToast('Configuration reset to defaults', 'success');
+        }
+
+        // Save configuration
+        function saveConfiguration() {
+            const total = Object.values(weights).reduce((a, b) => a + b, 0);
+            if (total !== 100) {
+                showToast('Total weight must equal 100%', 'error');
+                return;
+            }
+
+            // In a real app, this would save to a backend
+            localStorage.setItem('healthScoreConfig', JSON.stringify({
+                weights: weights,
+                thresholds: {
+                    green: document.getElementById('greenThreshold').value,
+                    yellow: document.getElementById('yellowThreshold').value
+                }
+            }));
+
+            showToast('Configuration saved successfully!', 'success');
+        }
+
+        // Toast notification
+        function showToast(message, type) {
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.cssText = 'position: fixed; bottom: 24px; right: 24px; background: ' +
+                (type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6') +
+                '; color: white; padding: 14px 20px; border-radius: 8px; font-size: 14px; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+            toast.innerHTML = '<span>' + message + '</span>';
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Load saved configuration
+        function loadConfiguration() {
+            const saved = localStorage.getItem('healthScoreConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                weights = config.weights;
+
+                for (let cat in weights) {
+                    document.getElementById(cat + 'Slider').value = weights[cat];
+                    document.getElementById(cat + 'Value').textContent = weights[cat] + '%';
+                }
+
+                document.getElementById('greenThreshold').value = config.thresholds.green;
+                document.getElementById('yellowThreshold').value = config.thresholds.yellow;
+            }
+
+            updateTotalWeight();
+            updateThresholds();
+            updatePreview();
+        }
+
+        // Toggle playbook on/off
+        function togglePlaybook(element) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            const playbookTitle = element.closest('.playbook-item').querySelector('.playbook-title').textContent;
+            showToast(`${playbookTitle} playbook ${isActive ? 'enabled' : 'disabled'}`, isActive ? 'success' : 'info');
+        }
+
+        // Initialize
+        loadConfiguration();
+    </script>
+</body>
+</html>
